@@ -1,0 +1,35 @@
+---
+- name: Provisionar entorno de desarrollo en WSL
+  hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+    - name: Instalar dependencias básicas
+      apt:
+        name:
+          - unzip
+          - jq
+          - htop
+          - zsh
+        state: present
+        update_cache: yes
+
+    - name: Instalar Node.js LTS
+      shell: |
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+        apt-get install -y nodejs
+      args:
+        executable: /bin/bash
+
+    - name: Instalar Docker Compose v2
+      shell: |
+        curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+      args:
+        executable: /bin/bash
+
+    - name: Configurar Zsh como shell por defecto
+      user:
+        name: "{{ lookup('env','USER') }}"
+        shell: /usr/bin/zsh
